@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -13,6 +14,10 @@ import (
 	"github.com/texttheater/golang-levenshtein/levenshtein"
 )
 
+// ErrSearchYoutubeTrackFailed is used when a search request has failed.
+var ErrSearchYoutubeTrackFailed = errors.New("Search youtube track has failed")
+
+// YoutubeResults defines the json returned by Youtube
 type YoutubeResults struct {
 	Items []struct {
 		ID struct {
@@ -24,12 +29,13 @@ type YoutubeResults struct {
 	} `json:"items"`
 }
 
-func (s *Service) GetYoutubeTrack(track *Track) {
+// GetYoutubeTrack tries to set the youtube URI of the given track
+func (s *Service) GetYoutubeTrack(track *Track) error {
 	query := url.QueryEscape(fmt.Sprintf("%s+-+%s", slugify.Slugify(track.Name), slugify.Slugify(track.Artist)))
 	request := fmt.Sprintf("https://content.googleapis.com/youtube/v3/search?q=%s&part=id,snippet&key=%s&max-results=5", query, s.Config.YoutubeKey)
 	resp, err := http.Get(request)
 	if err != nil {
-		log.Fatal(err)
+		return ErrSearchYoutubeTrackFailed
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
@@ -53,4 +59,5 @@ func (s *Service) GetYoutubeTrack(track *Track) {
 	if distance <= 20 {
 		track.YoutubeUri = fmt.Sprintf("https://www.youtube.com/watch?v=%s", results.Items[bestResult].ID.VideoID)
 	}
+	return nil
 }

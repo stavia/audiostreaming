@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 
@@ -11,7 +12,11 @@ import (
 	"github.com/zmb3/spotify"
 )
 
-func (s *Service) GetSpotifyTrack(track *Track) {
+// ErrSearchSpotifyTrackFailed is used when a search request has failed.
+var ErrSearchSpotifyTrackFailed = errors.New("Search spotify track has failed")
+
+// GetSpotifyTrack tries to set the spotify URI of the given track
+func (s *Service) GetSpotifyTrack(track *Track) error {
 	config := &clientcredentials.Config{
 		ClientID:     s.Config.SpotifyClientID,
 		ClientSecret: s.Config.SpotifyClientSecret,
@@ -19,14 +24,14 @@ func (s *Service) GetSpotifyTrack(track *Track) {
 	}
 	token, err := config.Token(context.Background())
 	if err != nil {
-		log.Fatalf("couldn't get token: %v", err)
+		log.Fatalf("It couldn't get spotify token: %v", err)
 	}
 
 	client := spotify.Authenticator{}.NewClient(token)
 	query := fmt.Sprintf("%s artist:%s", track.Name, track.Artist)
 	results, err := client.Search(query, spotify.SearchTypeTrack)
 	if err != nil {
-		log.Fatal(err)
+		return ErrSearchSpotifyTrackFailed
 	}
 
 	if results.Tracks.Total == 1 {
@@ -36,9 +41,10 @@ func (s *Service) GetSpotifyTrack(track *Track) {
 			for _, artistFound := range trackFound.Artists {
 				if slugify.Slugify(artistFound.Name) == slugify.Slugify(track.Artist) {
 					track.SpotifyUri = trackFound.Endpoint
-					return
+					return nil
 				}
 			}
 		}
 	}
+	return nil
 }
