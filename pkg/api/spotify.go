@@ -15,8 +15,8 @@ import (
 // ErrSearchSpotifyTrackFailed is used when a search request has failed.
 var ErrSearchSpotifyTrackFailed = errors.New("Search spotify track has failed")
 
-// GetSpotifyTrack tries to set the spotify URI of the given track
-func (s *Service) GetSpotifyTrack(track *Track) error {
+// SetSpotifyURI tries to set the spotify URI of the given track
+func (s *Service) SetSpotifyURI(track *Track) error {
 	config := &clientcredentials.Config{
 		ClientID:     s.Config.SpotifyClientID,
 		ClientSecret: s.Config.SpotifyClientSecret,
@@ -30,21 +30,29 @@ func (s *Service) GetSpotifyTrack(track *Track) error {
 	client := spotify.Authenticator{}.NewClient(token)
 	query := fmt.Sprintf("%s artist:%s", track.Name, track.Artist)
 	results, err := client.Search(query, spotify.SearchTypeTrack)
+	track.SpotifyURI, err = GetBestSpotifyResult(results, track)
 	if err != nil {
-		return ErrSearchSpotifyTrackFailed
+		return err
+	}
+	return nil
+}
+
+// GetBestSpotifyResult returns the best spotify result
+func GetBestSpotifyResult(results *spotify.SearchResult, track *Track) (uri string, err error) {
+	if err != nil {
+		return uri, ErrSearchSpotifyTrackFailed
 	}
 
 	if results.Tracks.Total == 1 {
-		track.SpotifyUri = results.Tracks.Tracks[0].Endpoint
+		track.SpotifyURI = results.Tracks.Tracks[0].Endpoint
 	} else {
 		for _, trackFound := range results.Tracks.Tracks {
 			for _, artistFound := range trackFound.Artists {
 				if slugify.Slugify(artistFound.Name) == slugify.Slugify(track.Artist) {
-					track.SpotifyUri = trackFound.Endpoint
-					return nil
+					return trackFound.Endpoint, nil
 				}
 			}
 		}
 	}
-	return nil
+	return uri, nil
 }

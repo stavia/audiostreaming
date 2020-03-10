@@ -31,7 +31,9 @@ func main() {
 	api.Config.SpotifyClientSecret = os.Getenv("SPOTIFY_CLIENT_SECRET")
 	api.Config.YoutubeKey = os.Getenv("YOTUBE_KEY")
 
-	api.GetYoutubeTrack(&track)
-	api.GetSpotifyTrack(&track)
+	api.SetYoutubeURI(&track)
+	api.SetSpotifyURI(&track)
+	api.SetDeezerURI(&track)
+
 	fmt.Println(track)
 }
