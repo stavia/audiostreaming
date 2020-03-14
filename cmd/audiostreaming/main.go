@@ -14,6 +14,7 @@ func main() {
 	arg1 := flag.String("track", "", "Name of the track you want to search")
 	arg2 := flag.String("artist", "", "Artist of the track you want to search")
 	flag.Parse()
+
 	if *arg1 == "" || *arg2 == "" {
 		flag.PrintDefaults()
 		return
@@ -30,6 +31,7 @@ func main() {
 	api.Config.SpotifyClientID = os.Getenv("SPOTIFY_CLIENT_ID")
 	api.Config.SpotifyClientSecret = os.Getenv("SPOTIFY_CLIENT_SECRET")
 	api.Config.YoutubeKey = os.Getenv("YOTUBE_KEY")
+	api.Config.LevenshteinDistance = os.Getenv("LEVENSHTEIN_DISTANCE")
 
 	api.SetYoutubeURI(&track)
 	api.SetSpotifyURI(&track)

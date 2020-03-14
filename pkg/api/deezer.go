@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 
@@ -36,10 +35,13 @@ func (s *Service) SetDeezerURI(track *Track) error {
 		return ErrSearchDeezerTrackFailed
 	}
 	defer resp.Body.Close()
+	if s.Config.LevenshteinDistance == 0 {
+		s.Config.LevenshteinDistance = LevenshteinDistance
+	}
 	body, err := ioutil.ReadAll(resp.Body)
-	track.YoutubeURI, err = s.GetBestDeezerResult(body, track)
+	track.DeezerURI, err = s.GetBestDeezerResult(body, track)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	return nil
 }
@@ -63,7 +65,7 @@ func (s *Service) GetBestDeezerResult(body []byte, track *Track) (uri string, er
 			bestResult = key
 		}
 	}
-	if distance <= 20 {
+	if len(results.Data) > 0 && distance <= 20 {
 		uri = results.Data[bestResult].Link
 	}
 	return uri, nil

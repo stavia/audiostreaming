@@ -10,4 +10,8 @@ type Config struct {
 
 	// YoutubeKey is the youtube key
 	YoutubeKey string
+
+	// LevenshteinDistance is the Levenshtein distance that is used to
+	// get the best result. More info: https://en.wikipedia.org/wiki/Levenshtein_distance
+	LevenshteinDistance int
 }

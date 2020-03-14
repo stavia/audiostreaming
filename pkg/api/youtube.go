@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -13,6 +12,9 @@ import (
 	"github.com/mozillazg/go-slugify"
 	"github.com/texttheater/golang-levenshtein/levenshtein"
 )
+
+// LevenshteinDistance is the Levenshtein distance that is used to get the best match
+const LevenshteinDistance = 20
 
 // ErrSearchYoutubeTrackFailed is used when a search request has failed.
 var ErrSearchYoutubeTrackFailed = errors.New("Search youtube track has failed")
@@ -37,11 +39,14 @@ func (s *Service) SetYoutubeURI(track *Track) error {
 	if err != nil {
 		return ErrSearchYoutubeTrackFailed
 	}
+	if s.Config.LevenshteinDistance == 0 {
+		s.Config.LevenshteinDistance = LevenshteinDistance
+	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	track.YoutubeURI, err = s.GetBestYoutubeResult(body, track)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	return nil
 }
@@ -65,6 +70,7 @@ func (s *Service) GetBestYoutubeResult(body []byte, track *Track) (uri string, e
 			bestResult = key
 		}
 	}
+
 	if len(results.Items) > 0 && distance <= 20 {
 		uri = fmt.Sprintf("https://www.youtube.com/watch?v=%s", results.Items[bestResult].ID.VideoID)
 	}

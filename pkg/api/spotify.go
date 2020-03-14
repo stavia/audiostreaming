@@ -24,11 +24,12 @@ func (s *Service) SetSpotifyURI(track *Track) error {
 	}
 	token, err := config.Token(context.Background())
 	if err != nil {
-		log.Fatalf("It couldn't get spotify token: %v", err)
+		log.Println("It couldn't get spotify token", err)
+		return err
 	}
 
 	client := spotify.Authenticator{}.NewClient(token)
-	query := fmt.Sprintf("%s artist:%s", track.Name, track.Artist)
+	query := fmt.Sprintf("%s %s", track.Name, track.Artist)
 	results, err := client.Search(query, spotify.SearchTypeTrack)
 	track.SpotifyURI, err = GetBestSpotifyResult(results, track)
 	if err != nil {
@@ -42,9 +43,8 @@ func GetBestSpotifyResult(results *spotify.SearchResult, track *Track) (uri stri
 	if err != nil {
 		return uri, ErrSearchSpotifyTrackFailed
 	}
-
 	if results.Tracks.Total == 1 {
-		track.SpotifyURI = results.Tracks.Tracks[0].Endpoint
+		uri = string(results.Tracks.Tracks[0].URI)
 	} else {
 		for _, trackFound := range results.Tracks.Tracks {
 			for _, artistFound := range trackFound.Artists {
