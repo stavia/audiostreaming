@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 	"github.com/stavia/audiostreaming/pkg/api"
@@ -31,7 +32,7 @@ func main() {
 	api.Config.SpotifyClientID = os.Getenv("SPOTIFY_CLIENT_ID")
 	api.Config.SpotifyClientSecret = os.Getenv("SPOTIFY_CLIENT_SECRET")
 	api.Config.YoutubeKey = os.Getenv("YOTUBE_KEY")
-	api.Config.LevenshteinDistance = os.Getenv("LEVENSHTEIN_DISTANCE")
+	api.Config.LevenshteinDistance, _ = strconv.Atoi(os.Getenv("LEVENSHTEIN_DISTANCE"))
 
 	api.SetYoutubeURI(&track)
 	api.SetSpotifyURI(&track)

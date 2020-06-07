@@ -39,6 +39,9 @@ func (s *Service) SetDeezerURI(track *Track) error {
 		s.Config.LevenshteinDistance = LevenshteinDistance
 	}
 	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
 	track.DeezerURI, err = s.GetBestDeezerResult(body, track)
 	if err != nil {
 		return err

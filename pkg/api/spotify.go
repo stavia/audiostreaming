@@ -31,6 +31,9 @@ func (s *Service) SetSpotifyURI(track *Track) error {
 	client := spotify.Authenticator{}.NewClient(token)
 	query := fmt.Sprintf("%s %s", track.Name, track.Artist)
 	results, err := client.Search(query, spotify.SearchTypeTrack)
+	if err != nil {
+		return err
+	}
 	track.SpotifyURI, err = GetBestSpotifyResult(results, track)
 	if err != nil {
 		return err
@@ -49,7 +52,7 @@ func GetBestSpotifyResult(results *spotify.SearchResult, track *Track) (uri stri
 		for _, trackFound := range results.Tracks.Tracks {
 			for _, artistFound := range trackFound.Artists {
 				if slugify.Slugify(artistFound.Name) == slugify.Slugify(track.Artist) {
-					return trackFound.Endpoint, nil
+					return string(trackFound.URI), nil
 				}
 			}
 		}
