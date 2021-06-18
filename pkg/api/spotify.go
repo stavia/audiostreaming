@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 
+	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
 
 	"github.com/mozillazg/go-slugify"
@@ -15,19 +16,23 @@ import (
 // ErrSearchSpotifyTrackFailed is used when a search request has failed.
 var ErrSearchSpotifyTrackFailed = errors.New("Search spotify track has failed")
 
-// SetSpotifyURI tries to set the spotify URI of the given track
-func (s *Service) SetSpotifyURI(track *Track) error {
+// GetSpotifyToken returns the Spotify oauth2 token
+func (s *Service) GetSpotifyToken() (token *oauth2.Token, err error) {
 	config := &clientcredentials.Config{
 		ClientID:     s.Config.SpotifyClientID,
 		ClientSecret: s.Config.SpotifyClientSecret,
 		TokenURL:     spotify.TokenURL,
 	}
-	token, err := config.Token(context.Background())
+	token, err = config.Token(context.Background())
 	if err != nil {
 		log.Println("It couldn't get spotify token", err)
-		return err
+		return nil, err
 	}
+	return token, nil
+}
 
+// SetSpotifyURI tries to set the spotify URI of the given track
+func (s *Service) SetSpotifyURI(track *Track, token *oauth2.Token) error {
 	client := spotify.Authenticator{}.NewClient(token)
 	query := fmt.Sprintf("%s %s", track.Name, track.Artist)
 	results, err := client.Search(query, spotify.SearchTypeTrack)

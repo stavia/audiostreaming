@@ -20,6 +20,7 @@ func main() {
 		flag.PrintDefaults()
 		return
 	}
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -31,11 +32,17 @@ func main() {
 	api := new(api.Service)
 	api.Config.SpotifyClientID = os.Getenv("SPOTIFY_CLIENT_ID")
 	api.Config.SpotifyClientSecret = os.Getenv("SPOTIFY_CLIENT_SECRET")
-	api.Config.YoutubeKey = os.Getenv("YOTUBE_KEY")
+	api.Config.YoutubeKey = os.Getenv("YOUTUBE_KEY")
 	api.Config.LevenshteinDistance, _ = strconv.Atoi(os.Getenv("LEVENSHTEIN_DISTANCE"))
 
 	api.SetYoutubeURI(&track)
-	api.SetSpotifyURI(&track)
+
+	token, err := api.GetSpotifyToken()
+	if err != nil {
+		log.Fatal(err)
+	}
+	api.SetSpotifyURI(&track, token)
+
 	api.SetDeezerURI(&track)
 
 	fmt.Println(track)
