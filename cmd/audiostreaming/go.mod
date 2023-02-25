@@ -8,13 +8,13 @@ require (
 )
 
 require (
-	github.com/golang/protobuf v1.4.2 // indirect
+	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/mozillazg/go-slugify v0.2.0 // indirect
-	github.com/mozillazg/go-unidecode v0.1.1 // indirect
+	github.com/mozillazg/go-unidecode v0.2.0 // indirect
 	github.com/texttheater/golang-levenshtein v1.0.1 // indirect
-	github.com/zmb3/spotify v0.0.0-20200814173021-9bec46940cc0 // indirect
-	golang.org/x/net v0.0.0-20200822124328-c89045814202 // indirect
-	golang.org/x/oauth2 v0.0.0-20201109201403-9fd604954f58 // indirect
-	google.golang.org/appengine v1.6.6 // indirect
-	google.golang.org/protobuf v1.25.0 // indirect
+	github.com/zmb3/spotify v1.3.0 // indirect
+	golang.org/x/net v0.7.0 // indirect
+	golang.org/x/oauth2 v0.5.0 // indirect
+	google.golang.org/appengine v1.6.7 // indirect
+	google.golang.org/protobuf v1.28.1 // indirect
 )
