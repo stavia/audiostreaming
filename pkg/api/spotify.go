@@ -56,15 +56,14 @@ func (s *Service) GetBestSpotifyResult(results *spotify.SearchResult, track *Tra
 		return uri, ErrSearchSpotifyTrackFailed
 	}
 	if results.Tracks.Total == 1 && len(results.Tracks.Tracks) == 1 {
-		uri = string(results.Tracks.Tracks[0].URI)
-	} else {
-		for _, trackFound := range results.Tracks.Tracks {
-			for _, artistFound := range trackFound.Artists {
-				if slugify.Slugify(artistFound.Name) == slugify.Slugify(track.Artist) {
-					return string(trackFound.URI), nil
-				}
+		return string(results.Tracks.Tracks[0].URI), nil
+	}
+	for _, trackFound := range results.Tracks.Tracks {
+		for _, artistFound := range trackFound.Artists {
+			if slugify.Slugify(artistFound.Name) == slugify.Slugify(track.Artist) {
+				return string(trackFound.URI), nil
 			}
 		}
 	}
-	return uri, nil
+	return uri, ErrTrackNotFound
 }

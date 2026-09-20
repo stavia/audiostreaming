@@ -72,7 +72,7 @@ func (s *Service) GetBestDeezerResult(body []byte, track *Track) (uri string, er
 		}
 	}
 	if len(results.Data) > 0 && distance <= s.levenshteinLimit() {
-		uri = results.Data[bestResult].Link
+		return results.Data[bestResult].Link, nil
 	}
-	return uri, nil
+	return uri, ErrTrackNotFound
 }

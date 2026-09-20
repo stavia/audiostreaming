@@ -61,12 +61,15 @@ func (s *Service) SetYoutubeURI(track *Track) error {
 	if err != nil {
 		return ErrSearchYoutubeTrackFailed
 	}
+	if resp.StatusCode != http.StatusOK {
+		if _, parseErr := s.GetBestYoutubeResult(body, track); parseErr == ErrExceededYoutubeQuota {
+			return parseErr
+		}
+		return ErrSearchYoutubeTrackFailed
+	}
 	track.YoutubeURI, err = s.GetBestYoutubeResult(body, track)
 	if err != nil {
 		return err
-	}
-	if resp.StatusCode != http.StatusOK {
-		return ErrSearchYoutubeTrackFailed
 	}
 	return nil
 }
@@ -96,6 +99,7 @@ func (s *Service) GetBestYoutubeResult(body []byte, track *Track) (uri string, e
 
 	if len(results.Items) > 0 && distance <= s.levenshteinLimit() {
 		uri = fmt.Sprintf("https://www.youtube.com/watch?v=%s", results.Items[bestResult].ID.VideoID)
+		return uri, nil
 	}
-	return uri, nil
+	return uri, ErrTrackNotFound
 }

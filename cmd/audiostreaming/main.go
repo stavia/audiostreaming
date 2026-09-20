@@ -35,13 +35,17 @@ func main() {
 	api.Config.YoutubeKey = os.Getenv("YOUTUBE_KEY")
 	api.Config.LevenshteinDistance, _ = strconv.Atoi(os.Getenv("LEVENSHTEIN_DISTANCE"))
 
-	api.SetYoutubeURI(&track)
-
-	if err := api.SetSpotifyURI(&track); err != nil {
-		log.Fatal(err)
+	if err := api.SetYoutubeURI(&track); err != nil {
+		log.Println(err)
 	}
 
-	api.SetDeezerURI(&track)
+	if err := api.SetSpotifyURI(&track); err != nil {
+		log.Println(err)
+	}
+
+	if err := api.SetDeezerURI(&track); err != nil {
+		log.Println(err)
+	}
 
 	fmt.Println(track)
 }
