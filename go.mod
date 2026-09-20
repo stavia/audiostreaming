@@ -1,6 +1,6 @@
 module audiostreaming
 
-go 1.20
+go 1.26.0
 
 require (
 	github.com/joho/godotenv v1.5.1
@@ -8,12 +8,9 @@ require (
 )
 
 require (
-	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/mozillazg/go-slugify v0.2.0 // indirect
 	github.com/mozillazg/go-unidecode v0.2.0 // indirect
 	github.com/texttheater/golang-levenshtein/levenshtein v0.0.0-20200805054039-cae8b0eaed6c // indirect
 	github.com/zmb3/spotify v1.3.0 // indirect
-	golang.org/x/oauth2 v0.15.0 // indirect
-	google.golang.org/appengine v1.6.8 // indirect
-	google.golang.org/protobuf v1.31.0 // indirect
+	golang.org/x/oauth2 v0.37.0 // indirect
 )
