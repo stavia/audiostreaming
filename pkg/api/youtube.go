@@ -48,7 +48,7 @@ type YoutubeResults struct {
 // SetYoutubeURI tries to set the youtube URI of the given track
 func (s *Service) SetYoutubeURI(track *Track) error {
 	query := url.QueryEscape(fmt.Sprintf("%s+-+%s", slugify.Slugify(track.Name), slugify.Slugify(track.Artist)))
-	request := fmt.Sprintf("https://content.googleapis.com/youtube/v3/search?q=%s&part=id,snippet&key=%s&max-results=5", query, s.Config.YoutubeKey)
+	request := fmt.Sprintf("https://content.googleapis.com/youtube/v3/search?q=%s&part=id,snippet&key=%s&maxResults=5", query, s.Config.YoutubeKey)
 	resp, err := http.Get(request)
 	if err != nil {
 		return ErrSearchYoutubeTrackFailed
