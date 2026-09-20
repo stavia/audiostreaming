@@ -16,6 +16,13 @@ import (
 // LevenshteinDistance is the Levenshtein distance that is used to get the best match
 const LevenshteinDistance = 20
 
+func (s *Service) levenshteinLimit() int {
+	if s.Config.LevenshteinDistance == 0 {
+		return LevenshteinDistance
+	}
+	return s.Config.LevenshteinDistance
+}
+
 // ErrSearchYoutubeTrackFailed is used when a search request has failed.
 var ErrSearchYoutubeTrackFailed = errors.New("Search youtube track has failed")
 
@@ -84,7 +91,7 @@ func (s *Service) GetBestYoutubeResult(body []byte, track *Track) (uri string, e
 		}
 	}
 
-	if len(results.Items) > 0 && distance <= 20 {
+	if len(results.Items) > 0 && distance <= s.levenshteinLimit() {
 		uri = fmt.Sprintf("https://www.youtube.com/watch?v=%s", results.Items[bestResult].ID.VideoID)
 	}
 	return uri, nil
