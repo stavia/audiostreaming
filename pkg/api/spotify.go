@@ -48,10 +48,10 @@ func (s *Service) SetSpotifyURI(track *Track, token *oauth2.Token) error {
 
 // GetBestSpotifyResult returns the best spotify result
 func GetBestSpotifyResult(results *spotify.SearchResult, track *Track) (uri string, err error) {
-	if err != nil {
+	if results == nil || results.Tracks == nil {
 		return uri, ErrSearchSpotifyTrackFailed
 	}
-	if results.Tracks.Total == 1 {
+	if results.Tracks.Total == 1 && len(results.Tracks.Tracks) == 1 {
 		uri = string(results.Tracks.Tracks[0].URI)
 	} else {
 		for _, trackFound := range results.Tracks.Tracks {
