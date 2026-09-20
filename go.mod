@@ -14,3 +14,5 @@ require (
 	github.com/zmb3/spotify v1.3.0 // indirect
 	golang.org/x/oauth2 v0.37.0 // indirect
 )
+
+replace github.com/stavia/audiostreaming/pkg/api => ./pkg/api

@@ -37,11 +37,9 @@ func main() {
 
 	api.SetYoutubeURI(&track)
 
-	token, err := api.GetSpotifyToken()
-	if err != nil {
+	if err := api.SetSpotifyURI(&track); err != nil {
 		log.Fatal(err)
 	}
-	api.SetSpotifyURI(&track, token)
 
 	api.SetDeezerURI(&track)
 
