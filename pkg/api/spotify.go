@@ -32,14 +32,18 @@ func (s *Service) GetSpotifyToken() (token *oauth2.Token, err error) {
 }
 
 // SetSpotifyURI tries to set the spotify URI of the given track
-func (s *Service) SetSpotifyURI(track *Track, token *oauth2.Token) error {
+func (s *Service) SetSpotifyURI(track *Track) error {
+	token, err := s.GetSpotifyToken()
+	if err != nil {
+		return err
+	}
 	client := spotify.Authenticator{}.NewClient(token)
 	query := fmt.Sprintf("%s %s", track.Name, track.Artist)
 	results, err := client.Search(query, spotify.SearchTypeTrack)
 	if err != nil {
 		return err
 	}
-	track.SpotifyURI, err = GetBestSpotifyResult(results, track)
+	track.SpotifyURI, err = s.GetBestSpotifyResult(results, track)
 	if err != nil {
 		return err
 	}
@@ -47,20 +51,19 @@ func (s *Service) SetSpotifyURI(track *Track, token *oauth2.Token) error {
 }
 
 // GetBestSpotifyResult returns the best spotify result
-func GetBestSpotifyResult(results *spotify.SearchResult, track *Track) (uri string, err error) {
-	if err != nil {
+func (s *Service) GetBestSpotifyResult(results *spotify.SearchResult, track *Track) (uri string, err error) {
+	if results == nil || results.Tracks == nil {
 		return uri, ErrSearchSpotifyTrackFailed
 	}
-	if results.Tracks.Total == 1 {
-		uri = string(results.Tracks.Tracks[0].URI)
-	} else {
-		for _, trackFound := range results.Tracks.Tracks {
-			for _, artistFound := range trackFound.Artists {
-				if slugify.Slugify(artistFound.Name) == slugify.Slugify(track.Artist) {
-					return string(trackFound.URI), nil
-				}
+	if results.Tracks.Total == 1 && len(results.Tracks.Tracks) == 1 {
+		return string(results.Tracks.Tracks[0].URI), nil
+	}
+	for _, trackFound := range results.Tracks.Tracks {
+		for _, artistFound := range trackFound.Artists {
+			if slugify.Slugify(artistFound.Name) == slugify.Slugify(track.Artist) {
+				return string(trackFound.URI), nil
 			}
 		}
 	}
-	return uri, nil
+	return uri, ErrTrackNotFound
 }

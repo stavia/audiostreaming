@@ -16,6 +16,13 @@ import (
 // LevenshteinDistance is the Levenshtein distance that is used to get the best match
 const LevenshteinDistance = 20
 
+func (s *Service) levenshteinLimit() int {
+	if s.Config.LevenshteinDistance == 0 {
+		return LevenshteinDistance
+	}
+	return s.Config.LevenshteinDistance
+}
+
 // ErrSearchYoutubeTrackFailed is used when a search request has failed.
 var ErrSearchYoutubeTrackFailed = errors.New("Search youtube track has failed")
 
@@ -41,7 +48,7 @@ type YoutubeResults struct {
 // SetYoutubeURI tries to set the youtube URI of the given track
 func (s *Service) SetYoutubeURI(track *Track) error {
 	query := url.QueryEscape(fmt.Sprintf("%s+-+%s", slugify.Slugify(track.Name), slugify.Slugify(track.Artist)))
-	request := fmt.Sprintf("https://content.googleapis.com/youtube/v3/search?q=%s&part=id,snippet&key=%s&max-results=5", query, s.Config.YoutubeKey)
+	request := fmt.Sprintf("https://content.googleapis.com/youtube/v3/search?q=%s&part=id,snippet&key=%s&maxResults=5", query, s.Config.YoutubeKey)
 	resp, err := http.Get(request)
 	if err != nil {
 		return ErrSearchYoutubeTrackFailed
@@ -52,6 +59,12 @@ func (s *Service) SetYoutubeURI(track *Track) error {
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		return ErrSearchYoutubeTrackFailed
+	}
+	if resp.StatusCode != http.StatusOK {
+		if _, parseErr := s.GetBestYoutubeResult(body, track); parseErr == ErrExceededYoutubeQuota {
+			return parseErr
+		}
 		return ErrSearchYoutubeTrackFailed
 	}
 	track.YoutubeURI, err = s.GetBestYoutubeResult(body, track)
@@ -84,8 +97,9 @@ func (s *Service) GetBestYoutubeResult(body []byte, track *Track) (uri string, e
 		}
 	}
 
-	if len(results.Items) > 0 && distance <= 20 {
+	if len(results.Items) > 0 && distance <= s.levenshteinLimit() {
 		uri = fmt.Sprintf("https://www.youtube.com/watch?v=%s", results.Items[bestResult].ID.VideoID)
+		return uri, nil
 	}
-	return uri, nil
+	return uri, ErrTrackNotFound
 }

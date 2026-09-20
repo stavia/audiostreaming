@@ -1,5 +1,10 @@
 package api
 
+import "errors"
+
+// ErrTrackNotFound is used when no streaming URI matches the track.
+var ErrTrackNotFound = errors.New("track not found")
+
 // Track defines the properties of a track/song to be listed
 type Track struct {
 	Name       string `json:"name"`

@@ -1,6 +1,9 @@
 package api
 
-import "golang.org/x/oauth2"
+import (
+	"github.com/zmb3/spotify"
+	"golang.org/x/oauth2"
+)
 
 // Provider provides api operations.
 type Provider interface {
@@ -8,10 +11,12 @@ type Provider interface {
 	GetBestYoutubeResult(body []byte, track *Track) (uri string, err error)
 	GetSpotifyToken() (token *oauth2.Token, err error)
 	SetSpotifyURI(track *Track) error
-	GetBestSpotifyResult(body []byte, track *Track) (uri string, err error)
+	GetBestSpotifyResult(results *spotify.SearchResult, track *Track) (uri string, err error)
 	SetDeezerURI(track *Track) error
 	GetBestDeezerResult(body []byte, track *Track) (uri string, err error)
 }
+
+var _ Provider = (*Service)(nil)
 
 // Service provides setting URIs into Track and methods for searching
 // into audio streaming APIs

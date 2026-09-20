@@ -35,6 +35,9 @@ func (s *Service) SetDeezerURI(track *Track) error {
 		return ErrSearchDeezerTrackFailed
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return ErrSearchDeezerTrackFailed
+	}
 	if s.Config.LevenshteinDistance == 0 {
 		s.Config.LevenshteinDistance = LevenshteinDistance
 	}
@@ -68,8 +71,8 @@ func (s *Service) GetBestDeezerResult(body []byte, track *Track) (uri string, er
 			bestResult = key
 		}
 	}
-	if len(results.Data) > 0 && distance <= 20 {
-		uri = results.Data[bestResult].Link
+	if len(results.Data) > 0 && distance <= s.levenshteinLimit() {
+		return results.Data[bestResult].Link, nil
 	}
-	return uri, nil
+	return uri, ErrTrackNotFound
 }
