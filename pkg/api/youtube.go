@@ -65,6 +65,9 @@ func (s *Service) SetYoutubeURI(track *Track) error {
 	if err != nil {
 		return err
 	}
+	if resp.StatusCode != http.StatusOK {
+		return ErrSearchYoutubeTrackFailed
+	}
 	return nil
 }
 

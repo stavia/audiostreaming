@@ -35,6 +35,9 @@ func (s *Service) SetDeezerURI(track *Track) error {
 		return ErrSearchDeezerTrackFailed
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return ErrSearchDeezerTrackFailed
+	}
 	if s.Config.LevenshteinDistance == 0 {
 		s.Config.LevenshteinDistance = LevenshteinDistance
 	}
